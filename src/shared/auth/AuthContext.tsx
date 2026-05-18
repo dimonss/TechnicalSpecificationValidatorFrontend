@@ -1,25 +1,9 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { logoutRefreshToken } from './api';
+import { AuthContext, type AuthContextValue } from './authContextValue';
 import { AUTH_LOGOUT_EVENT } from './events';
 import { tokenStorage } from './tokenStorage';
 import type { AuthSession, AuthUser } from './types';
-
-interface AuthContextValue {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  setSession: (session: AuthSession) => void;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -59,10 +43,4 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = (): AuthContextValue => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
 };

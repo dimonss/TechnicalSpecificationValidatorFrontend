@@ -21,7 +21,6 @@ export const GoogleLoginButton = ({ onIdToken, onError }: GoogleLoginButtonProps
       shape="rectangular"
       theme="outline"
       text="signin_with"
-      locale="ru"
       width="280"
     />
   );

@@ -1,2 +1,2 @@
 export { MarkdownReport } from './ui/MarkdownReport';
-export type { ValidationReport, ValidationReportMeta } from './model/types';
+export type { ValidationReport, ValidationReportMeta, UsageInfo } from './model/types';

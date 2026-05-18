@@ -1,6 +1,8 @@
 # Technical Specification Validator — Frontend
 
-React 19 + Vite frontend for the AI-powered ТЗ validator. Pure presentation — all AI logic lives in the [backend](../TechnicalSpecificationValidatorBackend/README.md). Communication is plain REST.
+React 19 + Vite frontend for the AI-powered ТЗ validator. Pure presentation — all AI logic lives in
+the [validator backend](../TechnicalSpecificationValidatorBackend/README.md). Authentication is
+handled by the [ChalyshAuth](../../ChalyshAuth/README.md) service (Telegram + Google).
 
 ## Stack
 
@@ -10,9 +12,11 @@ React 19 + Vite frontend for the AI-powered ТЗ validator. Pure presentation �
 - TypeScript 5 (strict, project references)
 - Tailwind CSS 4 (`@tailwindcss/vite` plugin) + `@tailwindcss/typography`
 - TanStack Query 5 — server state / mutations
-- Axios — HTTP client
+- Axios — HTTP client (Bearer-token interceptor + auto-refresh on 401)
 - React Hook Form + Zod — form validation
 - `react-markdown` + `remark-gfm` — rendering the Markdown report
+- `@react-oauth/google` — Google Sign-In button
+- Telegram Login Widget (vanilla script) for Telegram auth
 - ESLint 9 + Prettier
 
 ## Folder layout (Feature-Sliced Design)
@@ -21,53 +25,95 @@ React 19 + Vite frontend for the AI-powered ТЗ validator. Pure presentation �
 src/
   app/                        # composition root
     main.tsx                  # React 19 entrypoint
-    App.tsx                   # provider composition
+    App.tsx                   # QueryProvider + GoogleOAuthProvider + AuthProvider + AppRouter
     providers/QueryProvider.tsx
-    styles/index.css          # Tailwind v4 entry (+ @plugin typography)
+    styles/index.css          # Tailwind v4 entry
   pages/
-    validator/                # ValidatorPage
+    login/                    # LoginPage — Telegram + Google buttons
+    validator/                # ValidatorPage — main app
   widgets/
+    header/                   # logo + user info + quota badge + logout
     spec-input-panel/         # left column: textarea + actions
-    validation-result-panel/  # right column: loading/empty/error/markdown
+    validation-result-panel/  # right column: loading / empty / error / markdown
   features/
-    validate-spec/            # API + useMutation hooks
+    validate-spec/            # POST /api/validate
+    auth/
+      telegram-login/         # TelegramLoginButton (embeds widget)
+      google-login/           # GoogleLoginButton (@react-oauth/google)
+      logout/                 # LogoutButton
+    quota/                    # GET /api/usage + useQuota hook + QuotaBadge
   entities/
-    validation-report/        # type + MarkdownReport
+    validation-report/        # types + MarkdownReport
   shared/
-    api/                      # axios client + error extractor
-    config/                   # env access (VITE_API_BASE_URL)
+    api/                      # axios client + 401 refresh interceptor + error extractor
+    auth/                     # AuthContext, useAuth, tokenStorage, auth API calls
+    config/                   # env (api + auth URLs, OAuth ids)
     lib/cn.ts                 # className combiner
     ui/                       # Button, Textarea, Card, Spinner
+```
+
+## Auth flow
+
+```
+                ┌────────────────────┐
+                │     LoginPage      │
+                │ ┌────────────────┐ │   Telegram widget user object
+                │ │ Telegram btn   │─┼──────────────────────────────┐
+                │ └────────────────┘ │                               │
+                │ ┌────────────────┐ │   Google id_token             │
+                │ │ Google btn     │─┼──────┐                        │
+                │ └────────────────┘ │      │                        │
+                └────────────────────┘      ▼                        ▼
+                                    POST /auth/api/auth/google   POST /auth/api/auth/telegram
+                                            │                        │
+                                            └────────────┬───────────┘
+                                                         ▼
+                                          { accessToken, refreshToken, user }
+                                                         │
+                                  tokenStorage.write() + AuthContext.setSession()
+                                                         │
+                                                         ▼
+                                                  ValidatorPage
+                                                         │
+                                  apiClient → Authorization: Bearer <access>
+                                                         │
+                                          POST http://localhost:3001/api/validate
+                                                         │
+                                  401 → automatic refresh via /auth/api/auth/refresh
+                                  fail → tokenStorage.clear() → kicked back to LoginPage
 ```
 
 ## Getting started
 
 ```bash
-# Pick Node 24 via NVM
 nvm install 24
-nvm use            # reads .nvmrc -> 24
+nvm use
 
-# Install
 npm install
 
-# Configure environment
 cp .env.example .env
-# .env contents:
-# VITE_API_BASE_URL=http://localhost:3001
+# Fill in:
+#   VITE_API_BASE_URL         (validator backend)
+#   VITE_AUTH_API_BASE_URL    (ChalyshAuth base)
+#   VITE_TELEGRAM_BOT_USERNAME
+#   VITE_GOOGLE_CLIENT_ID
 
-# Dev
 npm run dev        # http://localhost:5173
-
-# Production build
-npm run build
-npm run preview
 ```
+
+Both ChalyshAuth (default `http://localhost:3000`) and the validator backend (default
+`http://localhost:3001`) must be running; their CORS settings must allow the frontend origin.
 
 ## Environment variables
 
-| Variable             | Required | Default                  | Description                  |
-| -------------------- | -------- | ------------------------ | ---------------------------- |
-| `VITE_API_BASE_URL`  | yes      | —                        | URL of the backend server    |
+| Variable                      | Required | Description                                                                  |
+| ----------------------------- | -------- | ---------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL`           | yes      | URL of the validator backend                                                 |
+| `VITE_AUTH_API_BASE_URL`      | yes      | URL of ChalyshAuth (e.g. `http://localhost:3000/auth/api`)                   |
+| `VITE_TELEGRAM_BOT_USERNAME`  | no\*     | Bot username for Telegram Login Widget. Without it, the Telegram button hides |
+| `VITE_GOOGLE_CLIENT_ID`       | no\*     | Google OAuth web client id. Without it, the Google button hides              |
+
+\* You need at least one of `VITE_TELEGRAM_BOT_USERNAME` / `VITE_GOOGLE_CLIENT_ID` for users to sign in.
 
 ## Scripts
 
@@ -79,15 +125,3 @@ npm run preview
 | `typecheck`   | `tsc -b --noEmit`                     |
 | `lint`        | ESLint over `src/`                    |
 | `format`      | Prettier write                        |
-
-## Wiring with the backend
-
-The backend must be running and reachable at `VITE_API_BASE_URL` before you can submit ТЗ. From the backend folder:
-
-```bash
-nvm use && npm install
-cp .env.example .env  # paste GEMINI_API_KEY
-npm run dev           # http://localhost:3001
-```
-
-Backend's `CORS_ORIGIN` must include the frontend origin (default `http://localhost:5173`).

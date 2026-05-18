@@ -13,6 +13,7 @@ interface SpecInputPanelProps {
   isExampleLoading: boolean;
   exampleText?: string;
   templateError?: string | null;
+  submitDisabledReason?: string | null;
 }
 
 const MAX_CHARS = 50_000;
@@ -24,6 +25,7 @@ export const SpecInputPanel = ({
   isExampleLoading,
   exampleText,
   templateError,
+  submitDisabledReason,
 }: SpecInputPanelProps) => {
   const {
     register,
@@ -99,7 +101,7 @@ export const SpecInputPanel = ({
           </div>
         </CardBody>
 
-        <CardFooter className="flex items-center justify-between gap-3 bg-slate-50/60">
+        <CardFooter className="flex flex-wrap items-center justify-between gap-3 bg-slate-50/60">
           <Button
             variant="ghost"
             onClick={() => reset({ text: '' })}
@@ -107,9 +109,18 @@ export const SpecInputPanel = ({
           >
             Очистить
           </Button>
-          <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting}>
-            {isSubmitting ? 'Анализируем…' : 'Проверить ТЗ'}
-          </Button>
+          <div className="flex items-center gap-3">
+            {submitDisabledReason && (
+              <span className="text-xs text-rose-600">{submitDisabledReason}</span>
+            )}
+            <Button
+              type="submit"
+              isLoading={isSubmitting}
+              disabled={isSubmitting || Boolean(submitDisabledReason)}
+            >
+              {isSubmitting ? 'Анализируем…' : 'Проверить ТЗ'}
+            </Button>
+          </div>
         </CardFooter>
       </form>
     </Card>
