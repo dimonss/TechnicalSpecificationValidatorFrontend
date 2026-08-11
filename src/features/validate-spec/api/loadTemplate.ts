@@ -5,6 +5,6 @@ export interface TemplateResponse {
 }
 
 export const loadTemplate = async (): Promise<TemplateResponse> => {
-  const { data } = await apiClient.get<TemplateResponse>('/api/template');
+  const { data } = await apiClient.get<TemplateResponse>('/template');
   return data;
 };

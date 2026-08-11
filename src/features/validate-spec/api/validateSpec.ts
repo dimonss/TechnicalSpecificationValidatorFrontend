@@ -6,6 +6,6 @@ export interface ValidateSpecPayload {
 }
 
 export const validateSpec = async (payload: ValidateSpecPayload): Promise<ValidationReport> => {
-  const { data } = await apiClient.post<ValidationReport>('/api/validate', payload);
+  const { data } = await apiClient.post<ValidationReport>('/validate', payload);
   return data;
 };
