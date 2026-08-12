@@ -17,17 +17,17 @@ export default defineConfig(({ command }) => ({
     allowedHosts: true,
     proxy: {
       '/dev/api': {
-        target: 'http://localhost:8095',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/dev\/api/, '/api'),
       },
       '/keychain/api': {
-        target: 'http://localhost:8095',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/keychain\/api/, '/api'),
       },
       '/api': {
-        target: 'http://localhost:8095',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },
