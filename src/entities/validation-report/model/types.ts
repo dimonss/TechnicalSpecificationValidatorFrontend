@@ -8,6 +8,7 @@ export interface UsageInfo {
   used: number;
   remaining: number;
   resetsAt: string;
+  unlimited?: boolean;
 }
 
 export interface ValidationReport {

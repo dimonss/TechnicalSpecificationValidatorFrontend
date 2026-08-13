@@ -31,6 +31,33 @@ export const QuotaBadge = ({ usage, isLoading, className }: QuotaBadgeProps) => 
 
   if (!usage) return null;
 
+  if (usage.unlimited) {
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700',
+          className,
+        )}
+        title="Безлимитный доступ к валидатору"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-3.5 w-3.5"
+          aria-hidden="true"
+        >
+          <path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.356-8-5.096 0-5.096 8 0 8 5.223 0 7.261-8 12.356-8Z" />
+        </svg>
+        Безлимитный доступ
+      </span>
+    );
+  }
+
   const exhausted = usage.remaining === 0;
   const low = usage.remaining > 0 && usage.remaining <= Math.max(1, Math.floor(usage.limit * 0.2));
 
