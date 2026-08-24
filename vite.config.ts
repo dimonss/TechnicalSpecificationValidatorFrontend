@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig(({ command }) => ({
-  base: command === 'serve' ? '/dev/' : '/keychain/',
+  base: command === 'serve' ? '/dev/' : '/technical_specification_validator/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -21,10 +21,10 @@ export default defineConfig(({ command }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/dev\/api/, '/api'),
       },
-      '/keychain/api': {
+      '/technical_specification_validator/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/keychain\/api/, '/api'),
+        rewrite: (path) => path.replace(/^\/technical_specification_validator\/api/, '/api'),
       },
       '/api': {
         target: 'http://localhost:3001',
