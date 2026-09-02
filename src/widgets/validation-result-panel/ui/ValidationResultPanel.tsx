@@ -5,6 +5,7 @@ import { Spinner } from '@/shared/ui/Spinner';
 interface ValidationResultPanelProps {
   report: ValidationReport | null;
   isLoading: boolean;
+  streamingMarkdown?: string;
   errorMessage: string | null;
 }
 
@@ -16,8 +17,12 @@ const formatDuration = (ms: number): string => {
 export const ValidationResultPanel = ({
   report,
   isLoading,
+  streamingMarkdown,
   errorMessage,
 }: ValidationResultPanelProps) => {
+  const isStreamingWithContent = Boolean(isLoading && streamingMarkdown);
+  const activeMarkdown = report?.markdown ?? (isStreamingWithContent ? streamingMarkdown : null);
+
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
@@ -28,7 +33,16 @@ export const ValidationResultPanel = ({
               AI-разбор ТЗ по критериям полноты, однозначности и проверяемости
             </p>
           </div>
-          {report?.meta && (
+          {isLoading && (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+              </span>
+              Генерация...
+            </span>
+          )}
+          {!isLoading && report?.meta && (
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
               {report.meta.model} · {formatDuration(report.meta.durationMs)}
             </span>
@@ -37,10 +51,20 @@ export const ValidationResultPanel = ({
       </CardHeader>
 
       <CardBody className="flex-1 overflow-auto">
-        {isLoading && <LoadingState />}
+        {isLoading && !isStreamingWithContent && <LoadingState />}
         {!isLoading && errorMessage && <ErrorState message={errorMessage} />}
-        {!isLoading && !errorMessage && !report && <EmptyState />}
-        {!isLoading && !errorMessage && report && <MarkdownReport markdown={report.markdown} />}
+        {!isLoading && !errorMessage && !activeMarkdown && <EmptyState />}
+        {activeMarkdown && (
+          <div className="space-y-4">
+            <MarkdownReport markdown={activeMarkdown} />
+            {isStreamingWithContent && (
+              <div className="flex items-center gap-2 rounded-md bg-indigo-50/80 px-3 py-2 text-xs text-indigo-700">
+                <Spinner size={14} />
+                <span>Печатает отчёт...</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardBody>
 
       {report && !isLoading && !errorMessage && (
@@ -51,6 +75,7 @@ export const ValidationResultPanel = ({
     </Card>
   );
 };
+
 
 const LoadingState = () => (
   <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-4 text-slate-500">

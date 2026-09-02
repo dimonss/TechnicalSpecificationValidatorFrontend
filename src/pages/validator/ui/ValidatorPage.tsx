@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import type { ValidationReport } from '@/entities/validation-report';
-import { useLoadTemplate, useValidateSpec } from '@/features/validate-spec';
+import { useLoadTemplate, useValidateSpecStream } from '@/features/validate-spec';
 import { useInvalidateUsage, useQuota, useSetUsage } from '@/features/quota';
 import { useAuth } from '@/shared/auth';
 import { Header } from '@/widgets/header';
@@ -9,8 +8,6 @@ import { ValidationResultPanel } from '@/widgets/validation-result-panel';
 
 export const ValidatorPage = () => {
   const { isAuthenticated } = useAuth();
-  const [report, setReport] = useState<ValidationReport | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [exampleText, setExampleText] = useState<string | undefined>(undefined);
   const [templateError, setTemplateError] = useState<string | null>(null);
 
@@ -18,15 +15,18 @@ export const ValidatorPage = () => {
   const setUsage = useSetUsage();
   const invalidateUsage = useInvalidateUsage();
 
-  const validate = useValidateSpec({
+  const {
+    validate,
+    abort,
+    isStreaming,
+    streamingMarkdown,
+    report,
+    error: streamError,
+  } = useValidateSpecStream({
     onSuccess: (data) => {
-      setReport(data);
-      setErrorMessage(null);
       setUsage(data.usage);
     },
-    onError: (message) => {
-      setReport(null);
-      setErrorMessage(message);
+    onError: () => {
       invalidateUsage();
     },
   });
@@ -42,10 +42,9 @@ export const ValidatorPage = () => {
   });
 
   const handleSubmit = (text: string) => {
-    setErrorMessage(null);
-    setReport(null);
-    validate.mutate({ text });
+    validate(text);
   };
+
 
   const handleLoadExample = () => {
     setTemplateError(null);
@@ -65,7 +64,8 @@ export const ValidatorPage = () => {
         <div className="grid h-[calc(100vh-7.5rem)] min-h-[600px] grid-cols-1 gap-6 lg:grid-cols-2">
           <SpecInputPanel
             onSubmit={handleSubmit}
-            isSubmitting={validate.isPending}
+            isSubmitting={isStreaming}
+            onAbort={abort}
             onLoadExample={handleLoadExample}
             isExampleLoading={template.isPending}
             exampleText={exampleText}
@@ -74,9 +74,11 @@ export const ValidatorPage = () => {
           />
           <ValidationResultPanel
             report={report}
-            isLoading={validate.isPending}
-            errorMessage={errorMessage}
+            isLoading={isStreaming}
+            streamingMarkdown={streamingMarkdown}
+            errorMessage={streamError}
           />
+
         </div>
       </main>
     </div>

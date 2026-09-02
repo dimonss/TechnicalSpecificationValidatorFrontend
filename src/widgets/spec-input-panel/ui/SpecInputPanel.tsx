@@ -9,6 +9,7 @@ import { specInputSchema, type SpecInputValues } from '../model/schema';
 interface SpecInputPanelProps {
   onSubmit: (text: string) => void;
   isSubmitting: boolean;
+  onAbort?: () => void;
   onLoadExample: () => void;
   isExampleLoading: boolean;
   exampleText?: string;
@@ -21,12 +22,14 @@ const MAX_CHARS = 50_000;
 export const SpecInputPanel = ({
   onSubmit,
   isSubmitting,
+  onAbort,
   onLoadExample,
   isExampleLoading,
   exampleText,
   templateError,
   submitDisabledReason,
 }: SpecInputPanelProps) => {
+
   const {
     register,
     handleSubmit,
@@ -113,14 +116,26 @@ export const SpecInputPanel = ({
             {submitDisabledReason && (
               <span className="text-xs text-rose-600">{submitDisabledReason}</span>
             )}
-            <Button
-              type="submit"
-              isLoading={isSubmitting}
-              disabled={isSubmitting || Boolean(submitDisabledReason)}
-            >
-              {isSubmitting ? 'Анализируем…' : 'Проверить ТЗ'}
-            </Button>
+            {isSubmitting && onAbort ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onAbort}
+                className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+              >
+                Остановить
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                disabled={isSubmitting || Boolean(submitDisabledReason)}
+              >
+                {isSubmitting ? 'Анализируем…' : 'Проверить ТЗ'}
+              </Button>
+            )}
           </div>
+
         </CardFooter>
       </form>
     </Card>
