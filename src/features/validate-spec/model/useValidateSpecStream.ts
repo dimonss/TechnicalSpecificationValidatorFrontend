@@ -46,29 +46,35 @@ export const useValidateSpecStream = ({
       setReport(null);
       setError(null);
 
-      await validateSpecStream({
-        text,
-        signal: controller.signal,
-        onChunk: (_chunk) => {
-          setStreamingMarkdown((prev) => prev + _chunk);
-        },
-        onDone: (finalReport) => {
-          setIsStreaming(false);
-          setReport(finalReport);
-          setStreamingMarkdown('');
-          abortControllerRef.current = null;
-          onSuccess?.(finalReport);
-        },
-        onError: (err) => {
-          setIsStreaming(false);
-          setError(err.message);
-          abortControllerRef.current = null;
-          onError?.(err.message);
-        },
-      });
+      try {
+        await validateSpecStream({
+          text,
+          signal: controller.signal,
+          onChunk: (_chunk) => {
+            setStreamingMarkdown((prev) => prev + _chunk);
+          },
+          onDone: (finalReport) => {
+            setIsStreaming(false);
+            setReport(finalReport);
+            setStreamingMarkdown('');
+            abortControllerRef.current = null;
+            onSuccess?.(finalReport);
+          },
+          onError: (err) => {
+            setIsStreaming(false);
+            setError(err.message);
+            abortControllerRef.current = null;
+            onError?.(err.message);
+          },
+        });
+      } finally {
+        setIsStreaming(false);
+        abortControllerRef.current = null;
+      }
     },
     [abort, onSuccess, onError],
   );
+
 
   const reset = useCallback(() => {
     abort();

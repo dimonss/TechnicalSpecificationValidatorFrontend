@@ -109,16 +109,21 @@ export const validateSpecStream = async ({
       }
     }
 
-    if (!completed && !signal?.aborted && accumulatedMarkdown) {
-      onDone({
-        markdown: accumulatedMarkdown,
-        meta: { model: 'gemini', durationMs: 0 },
-        usage: { limit: 0, used: 0, remaining: 0, resetsAt: '' },
-      });
+    if (!completed && !signal?.aborted) {
+      if (accumulatedMarkdown) {
+        onDone({
+          markdown: accumulatedMarkdown,
+          meta: { model: 'gemini', durationMs: 0 },
+          usage: { limit: 0, used: 0, remaining: 0, resetsAt: '' },
+        });
+      } else {
+        throw new Error('Поток завершился без ответа от сервера');
+      }
     }
   } catch (error) {
     if (signal?.aborted) return;
     const err = error instanceof Error ? error : new Error(String(error));
     onError(err);
   }
+
 };
