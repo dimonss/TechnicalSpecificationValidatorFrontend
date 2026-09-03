@@ -41,10 +41,18 @@ export const ValidatorPage = () => {
     },
   });
 
+  const [lastSubmittedText, setLastSubmittedText] = useState<string>('');
+
   const handleSubmit = (text: string) => {
+    setLastSubmittedText(text);
     validate(text);
   };
 
+  const handleRetry = () => {
+    if (lastSubmittedText) {
+      validate(lastSubmittedText);
+    }
+  };
 
   const handleLoadExample = () => {
     setTemplateError(null);
@@ -77,10 +85,11 @@ export const ValidatorPage = () => {
             isLoading={isStreaming}
             streamingMarkdown={streamingMarkdown}
             errorMessage={streamError}
+            onRetry={lastSubmittedText ? handleRetry : undefined}
           />
-
         </div>
       </main>
     </div>
   );
 };
+
