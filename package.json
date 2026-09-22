@@ -1,6 +1,6 @@
 {
   "name": "technical-specification-validator-front",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "description": "Frontend for AI-powered technical specification validator (React 19 + Vite + FSD).",
