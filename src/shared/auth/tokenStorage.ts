@@ -1,7 +1,7 @@
 import type { AuthSession, TokenPair } from './types';
 
-const ACCESS_KEY = 'tsv.accessToken';
-const REFRESH_KEY = 'tsv.refreshToken';
+const ACCESS_KEY = 'accessToken';
+const REFRESH_KEY = 'refreshToken';
 const USER_KEY = 'tsv.user';
 
 export const tokenStorage = {

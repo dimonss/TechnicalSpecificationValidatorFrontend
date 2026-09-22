@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { logoutRefreshToken } from './api';
+import { fetchProfile, logoutRefreshToken } from './api';
 import { AuthContext, type AuthContextValue } from './authContextValue';
 import { AUTH_LOGOUT_EVENT } from './events';
 import { tokenStorage } from './tokenStorage';
@@ -31,6 +31,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     window.addEventListener(AUTH_LOGOUT_EVENT, handler);
     return () => window.removeEventListener(AUTH_LOGOUT_EVENT, handler);
   }, []);
+
+  useEffect(() => {
+    const token = tokenStorage.readAccessToken();
+    if (token && !user) {
+      fetchProfile(token)
+        .then((profile) => {
+          const refreshToken = tokenStorage.readRefreshToken() || '';
+          tokenStorage.write({ accessToken: token, refreshToken, user: profile });
+          setUser(profile);
+        })
+        .catch(() => {
+          /* Token may be expired or invalid */
+        });
+    }
+  }, [user]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
