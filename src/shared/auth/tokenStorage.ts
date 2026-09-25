@@ -1,45 +1,140 @@
-import type { AuthSession, TokenPair } from './types';
+import type { AuthProviderType, AuthSession, AuthUser, TokenPair } from './types';
 
-const ACCESS_KEY = 'accessToken';
-const REFRESH_KEY = 'refreshToken';
-const USER_KEY = 'tsv.user';
+export const APP_ID = 'tsv';
+const APP_PROVIDER_KEY = `${APP_ID}_auth_provider`;
+
+export function hasTokensFor(provider: AuthProviderType): boolean {
+  return !!localStorage.getItem(`${provider}_accessToken`) && !!localStorage.getItem(`${provider}_refreshToken`);
+}
+
+export function getAvailableProviders(): AuthProviderType[] {
+  const list: AuthProviderType[] = [];
+  if (hasTokensFor('google')) list.push('google');
+  if (hasTokensFor('telegram')) list.push('telegram');
+  return list;
+}
+
+export function getActiveProvider(): AuthProviderType | null {
+  const hasGoogle = hasTokensFor('google');
+  const hasTelegram = hasTokensFor('telegram');
+
+  if (!hasGoogle && !hasTelegram) {
+    return null;
+  }
+  if (hasGoogle && !hasTelegram) {
+    return 'google';
+  }
+  if (hasTelegram && !hasGoogle) {
+    return 'telegram';
+  }
+
+  const stored = localStorage.getItem(APP_PROVIDER_KEY) as AuthProviderType | null;
+  if (stored === 'google' || stored === 'telegram') {
+    return stored;
+  }
+
+  return 'google';
+}
+
+export function setActiveProvider(provider: AuthProviderType): void {
+  localStorage.setItem(APP_PROVIDER_KEY, provider);
+}
 
 export const tokenStorage = {
+  hasTokensFor,
+  getAvailableProviders,
+  getActiveProvider,
+  setActiveProvider,
+
   read(): AuthSession | null {
     try {
-      const accessToken = localStorage.getItem(ACCESS_KEY);
-      const refreshToken = localStorage.getItem(REFRESH_KEY);
-      const userJson = localStorage.getItem(USER_KEY);
-      if (!accessToken || !refreshToken || !userJson) return null;
-      const user = JSON.parse(userJson) as AuthSession['user'];
+      const provider = getActiveProvider();
+      if (!provider) return null;
+      const accessToken = localStorage.getItem(`${provider}_accessToken`);
+      const refreshToken = localStorage.getItem(`${provider}_refreshToken`);
+      const userJson = localStorage.getItem(`${provider}_user`);
+      if (!accessToken || !refreshToken) return null;
+      const user = userJson ? (JSON.parse(userJson) as AuthUser) : null;
+      if (!user) return null;
       return { accessToken, refreshToken, user };
     } catch {
       return null;
     }
   },
 
-  write(session: AuthSession): void {
-    localStorage.setItem(ACCESS_KEY, session.accessToken);
-    localStorage.setItem(REFRESH_KEY, session.refreshToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(session.user));
+  write(session: AuthSession, provider?: AuthProviderType): void {
+    const targetProvider = provider || getActiveProvider() || 'google';
+    localStorage.setItem(`${targetProvider}_accessToken`, session.accessToken);
+    localStorage.setItem(`${targetProvider}_refreshToken`, session.refreshToken);
+    localStorage.setItem(`${targetProvider}_user`, JSON.stringify(session.user));
+    localStorage.setItem(APP_PROVIDER_KEY, targetProvider);
   },
 
-  writeTokens(tokens: TokenPair): void {
-    localStorage.setItem(ACCESS_KEY, tokens.accessToken);
-    localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
+  writeTokens(tokens: TokenPair, provider?: AuthProviderType): void {
+    const targetProvider = provider || getActiveProvider() || 'google';
+    localStorage.setItem(`${targetProvider}_accessToken`, tokens.accessToken);
+    localStorage.setItem(`${targetProvider}_refreshToken`, tokens.refreshToken);
   },
 
   readAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_KEY);
+    const provider = getActiveProvider();
+    if (!provider) return null;
+    return localStorage.getItem(`${provider}_accessToken`);
   },
 
   readRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_KEY);
+    const provider = getActiveProvider();
+    if (!provider) return null;
+    return localStorage.getItem(`${provider}_refreshToken`);
   },
 
-  clear(): void {
-    localStorage.removeItem(ACCESS_KEY);
-    localStorage.removeItem(REFRESH_KEY);
-    localStorage.removeItem(USER_KEY);
+  readUser(): AuthUser | null {
+    try {
+      const provider = getActiveProvider();
+      if (!provider) return null;
+      const userJson = localStorage.getItem(`${provider}_user`);
+      return userJson ? (JSON.parse(userJson) as AuthUser) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  writeUser(user: AuthUser, provider?: AuthProviderType): void {
+    const targetProvider = provider || getActiveProvider() || 'google';
+    localStorage.setItem(`${targetProvider}_user`, JSON.stringify(user));
+  },
+
+  clear(provider?: AuthProviderType): void {
+    const targetProvider = provider || getActiveProvider();
+    if (targetProvider) {
+      localStorage.removeItem(`${targetProvider}_accessToken`);
+      localStorage.removeItem(`${targetProvider}_refreshToken`);
+      localStorage.removeItem(`${targetProvider}_user`);
+      const remaining = getActiveProvider();
+      if (remaining) {
+        localStorage.setItem(APP_PROVIDER_KEY, remaining);
+      } else {
+        localStorage.removeItem(APP_PROVIDER_KEY);
+      }
+    } else {
+      localStorage.removeItem('google_accessToken');
+      localStorage.removeItem('google_refreshToken');
+      localStorage.removeItem('google_user');
+      localStorage.removeItem('telegram_accessToken');
+      localStorage.removeItem('telegram_refreshToken');
+      localStorage.removeItem('telegram_user');
+      localStorage.removeItem(APP_PROVIDER_KEY);
+    }
+  },
+
+  clearAll(): void {
+    localStorage.removeItem('google_accessToken');
+    localStorage.removeItem('google_refreshToken');
+    localStorage.removeItem('google_user');
+    localStorage.removeItem('telegram_accessToken');
+    localStorage.removeItem('telegram_refreshToken');
+    localStorage.removeItem('telegram_user');
+    localStorage.removeItem(APP_PROVIDER_KEY);
   },
 };
+

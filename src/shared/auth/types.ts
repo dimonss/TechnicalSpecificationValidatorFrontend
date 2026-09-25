@@ -1,3 +1,5 @@
+export type AuthProviderType = 'google' | 'telegram';
+
 export interface AuthUser {
   id: string;
   telegramId: string | null;

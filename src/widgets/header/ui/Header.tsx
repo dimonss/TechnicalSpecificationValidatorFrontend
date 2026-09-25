@@ -3,7 +3,7 @@ import { LogoutButton } from '@/features/auth/logout';
 import { useAuth } from '@/shared/auth';
 
 export const Header = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, activeProvider, availableProviders, switchProvider } = useAuth();
   const { data: usage, isPending } = useQuota(isAuthenticated);
 
   const displayName = user
@@ -50,6 +50,33 @@ export const Header = () => {
 
           {user && (
             <div className="flex items-center gap-2">
+              {activeProvider && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                    activeProvider === 'google'
+                      ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                      : 'bg-sky-50 text-sky-700 border border-sky-200'
+                  }`}
+                >
+                  <span>{activeProvider === 'google' ? '🔵' : '✈️'}</span>
+                  <span className="capitalize">{activeProvider}</span>
+                </span>
+              )}
+
+              {availableProviders.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextProvider = activeProvider === 'google' ? 'telegram' : 'google';
+                    switchProvider(nextProvider);
+                  }}
+                  title={`Переключить на ${activeProvider === 'google' ? 'Telegram' : 'Google'}`}
+                  className="rounded border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+                >
+                  🔄 {activeProvider === 'google' ? 'TG' : 'Google'}
+                </button>
+              )}
+
               {user.photoUrl ? (
                 <img
                   src={user.photoUrl}

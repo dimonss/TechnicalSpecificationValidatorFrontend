@@ -9,6 +9,7 @@ export {
 } from './api';
 export { tokenStorage } from './tokenStorage';
 export type {
+  AuthProviderType,
   AuthSession,
   AuthUser,
   TokenPair,

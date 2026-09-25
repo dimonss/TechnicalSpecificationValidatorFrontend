@@ -19,7 +19,7 @@ export const LoginPage = () => {
   const telegramMutation = useMutation({
     mutationFn: (payload: TelegramAuthPayload) => loginWithTelegram(payload),
     onSuccess: (session) => {
-      setSession(session);
+      setSession(session, 'telegram');
       setError(null);
     },
     onError: (err) => setError(extractErrorMessage(err)),
@@ -28,7 +28,7 @@ export const LoginPage = () => {
   const googleMutation = useMutation({
     mutationFn: (payload: GoogleAuthPayload) => loginWithGoogle(payload),
     onSuccess: (session) => {
-      setSession(session);
+      setSession(session, 'google');
       setError(null);
     },
     onError: (err) => setError(extractErrorMessage(err)),
