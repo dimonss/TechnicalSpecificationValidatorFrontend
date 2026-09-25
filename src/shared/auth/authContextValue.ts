@@ -8,8 +8,9 @@ export interface AuthContextValue {
   availableProviders: AuthProviderType[];
   setSession: (session: AuthSession, provider?: AuthProviderType) => void;
   switchProvider: (provider: AuthProviderType) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (target?: AuthProviderType | 'all') => Promise<void>;
 }
+
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 

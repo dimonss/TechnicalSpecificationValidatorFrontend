@@ -55,14 +55,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [],
   );
 
-  const logout = useCallback(async () => {
-    const refreshToken = tokenStorage.readRefreshToken();
-    if (refreshToken) {
-      await logoutRefreshToken(refreshToken);
+  const logout = useCallback(async (target?: AuthProviderType | 'all') => {
+    if (target === 'all') {
+      const gRefresh = localStorage.getItem('google_refreshToken');
+      const tgRefresh = localStorage.getItem('telegram_refreshToken');
+      if (gRefresh) await logoutRefreshToken(gRefresh);
+      if (tgRefresh) await logoutRefreshToken(tgRefresh);
+      tokenStorage.clearAll();
+    } else if (target) {
+      const refresh = localStorage.getItem(`${target}_refreshToken`);
+      if (refresh) await logoutRefreshToken(refresh);
+      tokenStorage.clear(target);
+    } else {
+      const refreshToken = tokenStorage.readRefreshToken();
+      if (refreshToken) {
+        await logoutRefreshToken(refreshToken);
+      }
+      tokenStorage.clear();
     }
-    tokenStorage.clear();
     refreshState();
   }, [refreshState]);
+
 
   useEffect(() => {
     const handler = () => {

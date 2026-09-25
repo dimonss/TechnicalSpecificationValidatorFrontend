@@ -77,6 +77,14 @@ export const Header = () => {
                 </button>
               )}
 
+              {availableProviders.length === 1 && (
+                <LogoutButton
+                  variant="ghost"
+                  label={availableProviders[0] === 'google' ? '+ ✈️ TG' : '+ 🔵 Google'}
+                  className="rounded border border-dashed border-indigo-300 bg-indigo-50/50 px-2 py-1 text-[11px] font-medium text-indigo-700 hover:bg-indigo-50 transition-colors"
+                />
+              )}
+
               {user.photoUrl ? (
                 <img
                   src={user.photoUrl}
