@@ -43,54 +43,57 @@ export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div
-        className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl my-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+      <div className="flex min-h-full items-center justify-center p-4 sm:p-6 text-center">
+        <div
+          className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-xl my-8 flex flex-col max-h-[calc(100vh-4rem)]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-200">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">Выход из аккаунта</h3>
+                <p className="text-xs text-slate-500">Управление активными сессиями</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 hover:bg-slate-100 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="6" />
               </svg>
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-slate-900">Выход из аккаунта</h3>
-              <p className="text-xs text-slate-500">Управление активными сессиями</p>
-            </div>
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 hover:bg-slate-100 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="6" />
-            </svg>
-          </button>
-        </div>
 
-        {/* SSO Warning */}
-        <div className="my-4 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-800 flex items-start gap-2.5 leading-relaxed">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-          <div>
-            <strong className="block font-semibold text-amber-900 mb-0.5">
-              Сквозная авторизация экосистемы chalysh.pro
-            </strong>
-            Выход будет выполнен во всех веб-приложениях экосистемы (HealthChecker, Брелоки, Ретроспектива, Валидатор ТЗ, Space Shooter, ChalyshAuth).
-          </div>
-        </div>
+          {/* Scrollable Content Body */}
+          <div className="overflow-y-auto py-2 pr-1 -mr-1 space-y-3.5">
+            {/* SSO Warning */}
+            <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-xs text-amber-800 flex items-start gap-2.5 leading-relaxed">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <div>
+                <strong className="block font-semibold text-amber-900 mb-0.5">
+                  Сквозная авторизация экосистемы chalysh.pro
+                </strong>
+                Выход будет выполнен во всех веб-приложениях экосистемы (HealthChecker, Брелоки, Ретроспектива, Валидатор ТЗ, Space Shooter, ChalyshAuth).
+              </div>
+            </div>
 
         {/* Options */}
         {hasGoogle && hasTelegram ? (
@@ -220,15 +223,17 @@ export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
             </div>
           </div>
         )}
-
-        {/* Footer */}
-        <div className="flex justify-end pt-4 mt-4 border-t border-slate-100">
-          <Button variant="secondary" onClick={onClose} disabled={isProcessing}>
-            Отмена
-          </Button>
-        </div>
       </div>
-    </div>,
-    document.body
-  );
+
+      {/* Footer */}
+      <div className="flex justify-end pt-3 mt-3 border-t border-slate-100 shrink-0">
+        <Button variant="secondary" onClick={onClose} disabled={isProcessing}>
+          Отмена
+        </Button>
+      </div>
+    </div>
+  </div>
+</div>,
+document.body
+);
 };
