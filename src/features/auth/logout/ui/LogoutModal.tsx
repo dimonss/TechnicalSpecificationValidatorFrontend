@@ -70,10 +70,11 @@ export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
               type="button"
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 hover:bg-slate-100 transition-colors"
+              aria-label="Закрыть"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="6" />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
               </svg>
             </button>
           </div>
@@ -95,88 +96,88 @@ export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
               </div>
             </div>
 
-        {/* Options */}
-        {hasGoogle && hasTelegram ? (
-          <div className="space-y-2.5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Выберите вариант выхода:
-            </p>
+            {/* Options */}
+            {hasGoogle && hasTelegram ? (
+              <div className="space-y-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Выберите вариант выхода:
+                </p>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
-              <div>
-                <div className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-                  <span>🔵</span> Google
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+                      <span>🔵</span> Google
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Завершить сессию Google. Telegram останется активным.
+                    </div>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    disabled={isProcessing}
+                    className="w-full sm:w-auto shrink-0 px-3 py-1.5 text-xs"
+                    onClick={() => handleLogoutAction('google')}
+                  >
+                    Выйти из Google
+                  </Button>
                 </div>
-                <div className="text-xs text-slate-500">
-                  Завершить сессию Google. Telegram останется активным.
-                </div>
-              </div>
-              <Button
-                variant="secondary"
-                disabled={isProcessing}
-                className="px-3 py-1.5 text-xs"
-                onClick={() => handleLogoutAction('google')}
-              >
-                Выйти из Google
-              </Button>
-            </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-slate-50/50">
-              <div>
-                <div className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
-                  <span>✈️</span> Telegram
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/50">
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
+                      <span>✈️</span> Telegram
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Завершить сессию Telegram. Google останется активным.
+                    </div>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    disabled={isProcessing}
+                    className="w-full sm:w-auto shrink-0 px-3 py-1.5 text-xs"
+                    onClick={() => handleLogoutAction('telegram')}
+                  >
+                    Выйти из Telegram
+                  </Button>
                 </div>
-                <div className="text-xs text-slate-500">
-                  Завершить сессию Telegram. Google останется активным.
-                </div>
-              </div>
-              <Button
-                variant="secondary"
-                disabled={isProcessing}
-                className="px-3 py-1.5 text-xs"
-                onClick={() => handleLogoutAction('telegram')}
-              >
-                Выйти из Telegram
-              </Button>
-            </div>
 
-            <div className="flex items-center justify-between p-3 rounded-xl border border-rose-200 bg-rose-50/50">
-              <div>
-                <div className="text-sm font-semibold text-rose-700 flex items-center gap-1.5">
-                  <span>🚪</span> Выйти со всех сразу
-                </div>
-                <div className="text-xs text-slate-500">
-                  Полный выход из обоих аккаунтов во всех сервисах.
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl border border-rose-200 bg-rose-50/50">
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-rose-700 flex items-center gap-1.5">
+                      <span>🚪</span> Выйти со всех сразу
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Полный выход из обоих аккаунтов во всех сервисах.
+                    </div>
+                  </div>
+                  <Button
+                    variant="primary"
+                    disabled={isProcessing}
+                    className="w-full sm:w-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 text-xs"
+                    onClick={() => handleLogoutAction('all')}
+                  >
+                    Выйти со всех
+                  </Button>
                 </div>
               </div>
-              <Button
-                variant="primary"
-                disabled={isProcessing}
-                className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 text-xs"
-                onClick={() => handleLogoutAction('all')}
-              >
-                Выйти со всех
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
-              <div>
-                <div className="text-sm font-semibold text-slate-800">
-                  {hasGoogle ? '🔵 Google (активен)' : '✈️ Telegram (активен)'}
+            ) : (
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50/50">
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-slate-800">
+                      {hasGoogle ? '🔵 Google (активен)' : '✈️ Telegram (активен)'}
+                    </div>
+                    <div className="text-xs text-slate-500">Текущий аккаунт</div>
+                  </div>
+                  <Button
+                    variant="primary"
+                    disabled={isProcessing}
+                    className="w-full sm:w-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 text-xs"
+                    onClick={() => handleLogoutAction('all')}
+                  >
+                    Выйти со всех сервисов
+                  </Button>
                 </div>
-                <div className="text-xs text-slate-500">Текущий аккаунт</div>
-              </div>
-              <Button
-                variant="primary"
-                disabled={isProcessing}
-                className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 text-xs"
-                onClick={() => handleLogoutAction('all')}
-              >
-                Выйти со всех сервисов
-              </Button>
-            </div>
 
             {/* Authorize other provider */}
             <div className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 space-y-2">
