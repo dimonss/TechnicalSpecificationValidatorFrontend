@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth, loginWithGoogle, loginWithTelegram } from '@/shared/auth';
 import { GoogleLoginButton } from '@/features/auth/google-login';
 import { TelegramLoginButton } from '@/features/auth/telegram-login';
@@ -13,6 +14,17 @@ interface LogoutModalProps {
 export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
   const { logout, setSession, availableProviders } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isProcessing) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isProcessing, onClose]);
 
   if (!isOpen) return null;
 
@@ -29,10 +41,13 @@ export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto"
+      onClick={onClose}
+    >
       <div
-        className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+        className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -213,6 +228,7 @@ export const LogoutModal = ({ isOpen, onClose }: LogoutModalProps) => {
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
